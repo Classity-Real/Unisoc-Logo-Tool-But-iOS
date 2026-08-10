@@ -179,3 +179,6 @@ The author(s) shall **not** be held liable for any claim, damages, or other liab
 - Any indirect, incidental, or consequential damages
 
 **You are solely responsible** for verifying compatibility, keeping a backup of your original `logo.bin`, and ensuring your device's logo partition is large enough before flashing. Always proceed with caution on production or personal devices.
+
+# A Message to the owner
+This fork is made to archive due to you don’t want us to share it but the website said we are ALLOWED to Distribute freely but you decided to not allow us to share it without any reason. It’s really stupid to say that you said you are allowed to distribute means we can share it but not allowing us to share it on the telegram of unisoc is just hard bullshit. Again and there’s nothing really you can do about it here and it’s forked for Archive purposes if you gonna hide it anyways
