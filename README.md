@@ -1,6 +1,10 @@
-# logo-bin-tool
+# logo-bin-tool but for iOS
 
 A web-based tool for extracting, replacing, and repacking Unisoc / Spreadtrum `logo.bin` firmware images. All frame processing runs locally in the browser — no file uploads to any server.
+until its converted to a iOS iPA out of nowhere
+
+## Infomation
+Well.. Its just converted iOS iPA so the source code remains the same
 
 ## Features
 
