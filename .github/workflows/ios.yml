@@ -38,12 +38,13 @@ jobs:
 
       - name: Install Capacitor
         run: |
-          npm install @capacitor/core @capacitor/ios
-          npm install -D @capacitor/cli
+          npm install @capacitor/core@6 @capacitor/ios@6
+          npm install -D @capacitor/cli@6
 
       - name: Initialize Capacitor project
         run: |
           npx cap init "${{ inputs.app_name }}" "com.classityreal.logobintool" --web-dir=public
+          node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('capacitor.config.json')); c.ios={minVersion:'14.0'}; fs.writeFileSync('capacitor.config.json', JSON.stringify(c,null,2));"
 
       - name: Add iOS platform
         run: npx cap add ios
