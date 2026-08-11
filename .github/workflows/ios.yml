@@ -1,0 +1,88 @@
+name: iOS Build (unsigned IPA)
+
+# Manual trigger only. Produces an UNSIGNED .ipa — you sign/install it yourself
+# with LCSign (or AltStore/Sideloadly) on your own device. No Apple Developer
+# account or certificate is used or needed in this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Display name for the app on your homescreen'
+        required: true
+        type: string
+        default: 'Logo Bin Tool'
+
+jobs:
+  build-ipa:
+    name: Build unsigned IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      # From the README: compiles Tailwind CSS + copies the Lucide icon bundle
+      # into public/. This is what makes public/ a fully self-contained static
+      # site — no Node server needed at runtime, which is what lets Capacitor
+      # just embed it directly with no bundled backend.
+      - name: Build web assets
+        run: npm run build
+
+      - name: Install Capacitor
+        run: |
+          npm install @capacitor/core @capacitor/ios
+          npm install -D @capacitor/cli
+
+      - name: Initialize Capacitor project
+        run: |
+          npx cap init "${{ inputs.app_name }}" "com.classityreal.logobintool" --web-dir=public
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Sync web assets into the iOS project
+        run: npx cap sync ios
+
+      # No signing identity or provisioning profile — this produces an .app
+      # bundle that isn't signed for any device yet. That's expected; LCSign
+      # does the actual signing afterward on your iPhone.
+      - name: Archive (unsigned)
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE="" \
+            build
+
+      # An .ipa is just a zip with a specific internal layout: the .app bundle
+      # inside a top-level "Payload" folder. xcodebuild's own -exportArchive
+      # step requires a signing identity, so for an unsigned build we package
+      # this by hand instead.
+      - name: Package into IPA
+        run: |
+          APP_PATH="build/Build/Products/Release-iphoneos/App.app"
+          mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
+          zip -r -y "${{ inputs.app_name }}-unsigned.ipa" Payload
+          echo "ipa_name=${{ inputs.app_name }}-unsigned.ipa" >> "$GITHUB_ENV"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.app_name }}-unsigned-ipa
+          path: ${{ env.ipa_name }}
+          if-no-files-found: error
