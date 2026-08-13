@@ -10,8 +10,21 @@
     scroll-behavior: smooth;
   }
 
+  /* Add iOS safe-area insets so the UI doesn't overlap the status bar on iOS devices */
   body {
     @apply bg-bg font-mono text-ink antialiased min-h-screen;
+
+    /* Legacy iOS < 11.2 */
+    padding-top: constant(safe-area-inset-top);
+    padding-right: constant(safe-area-inset-right);
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-left: constant(safe-area-inset-left);
+
+    /* Modern browsers */
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
   }
 
   a {
@@ -22,6 +35,14 @@
 @layer components {
   .nav-logo-cursor {
     @apply text-accent animate-blink;
+  }
+
+  /* Ensure the sticky nav honors the safe-area inset on iOS */
+  nav.sticky {
+    /* Legacy */
+    top: constant(safe-area-inset-top);
+    /* Modern */
+    top: env(safe-area-inset-top);
   }
 
   .upload-zone {
@@ -103,4 +124,10 @@
   .accent-border-left {
     border-left: 2px solid theme('colors.accent.DEFAULT');
   }
+}
+
+/* Add safe-area padding for footer so bottom controls aren't obscured */
+footer {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
 }
